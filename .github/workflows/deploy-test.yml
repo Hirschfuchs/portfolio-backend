@@ -1,0 +1,117 @@
+name: Portfolio (Backend) Test-Deployment
+
+on:
+  push:
+    branches:
+      - "main"
+  workflow_dispatch:
+
+jobs:
+  get-version:
+    name: Versionsinformationen auslesen
+    runs-on: ubuntu-latest
+    outputs:
+      major-minor-version: ${{ steps.major-minor-version.outputs.RESULT }}
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+      - name: Aktuelle Major-Minor-Version ermitteln
+        id: major-minor-version
+        run: echo "RESULT=$(npm pkg get version --workspaces=false | tr -d \" | rev | cut -d '.' -f2- | rev)" >> $GITHUB_OUTPUT
+
+  set-patch:
+    name: Version aktualisieren
+    runs-on: ubuntu-latest
+    outputs:
+      patch-version: ${{ steps.patch-version.outputs.RESULT }}
+    steps:
+      # Wenn nur Patch-Update
+      - name: Patch-Version ermitteln
+        id: patch-version
+        if: ${{ needs.get-version.outputs.major-minor-version == vars.MAJOR_MINOR_VERSION }}
+        run: echo "RESULT=$((${{ vars.PATCH_VERSION }} + 1))" >> $GITHUB_OUTPUT
+      - name: Patch-Version erhöhen
+        if: ${{ needs.get-version.outputs.major-minor-version == vars.MAJOR_MINOR_VERSION }}
+        uses: mmoyaferrer/set-github-variable@v1.0.0
+        with:
+          name: "PATCH_VERSION"
+          value: ${{ steps.patch-version.outputs.RESULT }}
+          repository: Hirschfuchs/portfolio
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
+      # Wenn Major-/Minor-Update
+      - name: Patch-Version zurücksetzen
+        if: ${{ needs.get-version.outputs.major-minor-version != vars.MAJOR_MINOR_VERSION }}
+        uses: mmoyaferrer/set-github-variable@v1.0.0
+        with:
+          name: "PATCH_VERSION"
+          value: "0"
+          repository: Hirschfuchs/portfolio
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
+      - name: Major-Minor-Version speichern
+        if: ${{ needs.get-version.outputs.major-minor-version != vars.MAJOR_MINOR_VERSION }}
+        uses: mmoyaferrer/set-github-variable@v1.0.0
+        with:
+          name: "MAJOR_MINOR_VERSION"
+          value: ${{ needs.get-version.outputs.major-minor-version }}
+          repository: Hirschfuchs/portfolio
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
+    needs: [get-version]
+
+  build:
+    name: Bauen
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Version setzen (Nur Patch)
+        if: ${{ needs.get-version.outputs.major-minor-version == vars.MAJOR_MINOR_VERSION }}
+        run: npm version $MAJOR_MINOR_VERSION.$PATCH_VERSION --no-git-tag-version --allow-same-version
+        env:
+          MAJOR_MINOR_VERSION: ${{ needs.get-version.outputs.major-minor-version }}
+          PATCH_VERSION: ${{ needs.set-patch.outputs.patch-version }}
+      - name: Version setzen (Major/Minor)
+        if: ${{ needs.get-version.outputs.major-minor-version != vars.MAJOR_MINOR_VERSION }}
+        run: npm version $MAJOR_MINOR_VERSION.0 --no-git-tag-version --allow-same-version
+        env:
+          MAJOR_MINOR_VERSION: ${{ needs.get-version.outputs.major-minor-version }}
+      - uses: browser-actions/setup-chrome@v1
+      - name: Abhängigkeiten laden
+        run: npm i
+      - name: Projekt bauen
+        run: npm run build
+      - uses: actions/upload-artifact@master
+        with:
+          name: result
+          path: dist/
+      - name: Release erzeugen
+        if: ${{ needs.get-version.outputs.major-minor-version != vars.MAJOR_MINOR_VERSION }}
+        uses: elgohr/Github-Release-Action@20240816194204
+        env:
+          GH_TOKEN: ${{ secrets.REPO_ACCESS_TOKEN }}
+        with:
+          title: Version ${{ needs.get-version.outputs.major-minor-version }}.0
+          tag: v${{ needs.get-version.outputs.major-minor-version }}.0
+          workdir: dist/portfolio-fox
+    needs: [get-version, set-patch]
+
+  deploy:
+    name: Deployen
+    runs-on: ubuntu-latest
+    steps:
+      - name: Vorbereiten
+        uses: actions/checkout@v4
+
+      - name: Hole gebautes Ergebnis
+        uses: actions/download-artifact@master
+        with:
+          name: result
+          path: dist/
+
+      - name: FTP-Upload
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: bono-fox.de
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: dist/
+          server-dir: backend/test/
+    needs: [build]
