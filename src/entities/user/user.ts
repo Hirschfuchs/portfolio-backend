@@ -1,7 +1,5 @@
 import cuid2 from '@paralleldrive/cuid2';
-import { Column, Entity, ManyToMany, ManyToOne, PrimaryColumn } from 'typeorm';
-import { Datenzugriff } from '../datenzugriff/datenzugriff';
-import { Rolle } from '../rolle/rolle';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 /**
  * Entity eines Users autorisierten Nutzers des Systems
@@ -49,27 +47,27 @@ export class User {
   /**
    * Ermöglicht gänzliche Sperrung des Zugangs
    */
-  @Column({ default: true })
-  active: boolean;
-
-  @ManyToOne((type) => Rolle, (type) => type.id)
-  role: Rolle | undefined;
-
-  @ManyToMany((type) => Datenzugriff, (type) => type.id)
-  zugriffe: Datenzugriff[];
-
-  @Column({ length: 64 })
-  vorname: string | undefined;
-
-  @Column({ length: 64 })
-  nachname: string | undefined;
-
-  @Column({ length: 128 })
-  firma: string | undefined;
-
-  @Column({ length: 96 })
-  mail: string | undefined;
-
-  @Column({ length: 32 })
-  tel: string | undefined;
+  // @Column({ default: true })
+  // active: boolean;
+  //
+  // @ManyToOne((type) => Rolle, (type) => type.id)
+  // role: Rolle | undefined;
+  //
+  // @ManyToMany((type) => Datenzugriff, (type) => type.id)
+  // zugriffe: Datenzugriff[];
+  //
+  // @Column({ length: 64 })
+  // vorname: string | undefined;
+  //
+  // @Column({ length: 64 })
+  // nachname: string | undefined;
+  //
+  // @Column({ length: 128 })
+  // firma: string | undefined;
+  //
+  // @Column({ length: 96 })
+  // mail: string | undefined;
+  //
+  // @Column({ length: 32 })
+  // tel: string | undefined;
 }

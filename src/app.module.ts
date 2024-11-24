@@ -1,23 +1,23 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from './entities/user/user';
 
 @Module({
   imports: [
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        type: 'mysql',
-        host: '10.35.47.194',
-        port: 3306,
-        username: await configService.get('DATABASE_USER'),
-        password: await configService.get('DATABASE_PASSWORD'),
-        database: 'k156652_portfolio',
-        synchronize: false,
-      }),
+    ConfigModule.forRoot(),
+    TypeOrmModule.forRoot({
+      type: 'mysql',
+      host: 'http://10.35.47.194',
+      port: 3306,
+      username: 'k156652_portfolio',
+      password: 'Ve6b5sFA63Ku9eEn5t4I',
+      database: 'k156652_portfolio',
+      synchronize: true,
     }),
+    TypeOrmModule.forFeature([User]),
   ],
   controllers: [AppController],
   providers: [AppService],
