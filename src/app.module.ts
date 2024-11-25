@@ -10,7 +10,8 @@ import { User } from './entities/user/user';
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'http://10.35.47.194',
+      host: '10.35.47.194',
+      url: '10.35.47.194',
       port: 3306,
       username: 'k156652_portfolio',
       password: 'Ve6b5sFA63Ku9eEn5t4I',
