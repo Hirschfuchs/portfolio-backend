@@ -3,7 +3,7 @@ name: PR testen
 on:
   pull_request:
     branches:
-      - "main"
+      - 'main'
   workflow_dispatch:
 
 concurrency:

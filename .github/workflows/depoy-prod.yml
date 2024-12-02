@@ -3,7 +3,7 @@ name: Portfolio Prod-Deployment
 on:
   push:
     branches:
-      - "production"
+      - 'production'
 
 jobs:
   build:
