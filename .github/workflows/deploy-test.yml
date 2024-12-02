@@ -3,7 +3,7 @@ name: Portfolio (Backend) Test-Deployment
 on:
   push:
     branches:
-      - "main"
+      - 'main'
   workflow_dispatch:
 
 jobs:
@@ -34,7 +34,7 @@ jobs:
         if: ${{ needs.get-version.outputs.major-minor-version == vars.MAJOR_MINOR_VERSION }}
         uses: openfoxes/set-github-variable@v1.3.0
         with:
-          name: "PATCH_VERSION"
+          name: 'PATCH_VERSION'
           value: ${{ steps.patch-version.outputs.RESULT }}
           repository: Hirschfuchs/portfolio
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
@@ -43,15 +43,15 @@ jobs:
         if: ${{ needs.get-version.outputs.major-minor-version != vars.MAJOR_MINOR_VERSION }}
         uses: openfoxes/set-github-variable@v1.3.0
         with:
-          name: "PATCH_VERSION"
-          value: "0"
+          name: 'PATCH_VERSION'
+          value: '0'
           repository: Hirschfuchs/portfolio
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
       - name: Major-Minor-Version speichern
         if: ${{ needs.get-version.outputs.major-minor-version != vars.MAJOR_MINOR_VERSION }}
         uses: openfoxes/set-github-variable@v1.3.0
         with:
-          name: "MAJOR_MINOR_VERSION"
+          name: 'MAJOR_MINOR_VERSION'
           value: ${{ needs.get-version.outputs.major-minor-version }}
           repository: Hirschfuchs/portfolio
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
