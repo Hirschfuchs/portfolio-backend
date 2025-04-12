@@ -1,0 +1,4 @@
+= Portfolio Bono Fox - Technische Dokumentation
+
+An dieser Stelle wird sich die technische Dokumentation des digitalen Portfolios von Bono finden.
+Die Dokumentation soll die Funktionsweise erklären, Entscheidungen festhalten und die Wartung erleichtern.

@@ -45,3 +45,6 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Dokumentation erzeugen
+        run: npm run docs:generate
