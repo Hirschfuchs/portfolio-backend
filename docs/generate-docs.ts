@@ -19,7 +19,10 @@ for (const document of documents) {
   Processor().convertFile(document, {
     safe: 'safe',
 
-    attributes: { linkcss: true },
+    attributes: {
+      linkcss: true,
+      stylesheet: fileInfo.pathToDirRoot + 'skin.css',
+    },
 
     mkdirs: true,
 
@@ -38,6 +41,8 @@ function extractFileParts(filepath: string) {
     filepath = filepath.substring(0, filepath.length - 1);
   }
 
+  const directoryDepth = filepath.split('"/').length - 1;
+
   return {
     filename: filepath.substring(
       filepath.lastIndexOf('/') + 1,
@@ -46,5 +51,7 @@ function extractFileParts(filepath: string) {
     ),
 
     dir: filepath.substring(0, filepath.lastIndexOf('/')),
+
+    pathToDirRoot: '../'.repeat(directoryDepth),
   };
 }
